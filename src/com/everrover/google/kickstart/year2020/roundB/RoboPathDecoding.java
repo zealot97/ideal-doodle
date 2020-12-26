@@ -1,30 +1,49 @@
 package com.everrover.google.kickstart.year2020.roundB;
 
+
 import java.util.Scanner;
 import java.util.Stack;
 
 public class RoboPathDecoding {
+    public static class Block{
+        long cood[];
+        char ch;
+
+        public Block(char ch) {
+            cood = new long[2];
+            this.ch = ch;
+        }
+
+        public Block(long[] cood, char ch) {
+            this.cood = cood;
+            this.ch = ch;
+        }
+    }
     static final int RANGE_L = 1, RANGE_R = 1000000000;
 
-    private static int getEffectiveCood(int x){
-        return x>=0? RANGE_L+x: RANGE_R+x;
+    private static long getEffectiveCood(long x){
+        x %= RANGE_R;
+        return x>=0? x+RANGE_L: RANGE_R+x+1;
     }
 
-    private static void calcRC(char ch, int []cood){
-        if(ch == 'N'){
+    private static void calcRC(Block block, long []cood){
+        if(block.ch == 'N'){
             cood[0]--;
-        }else if(ch == 'S'){
+        }else if(block.ch == 'S'){
             cood[0]++;
-        }else if(ch == 'E'){
+        }else if(block.ch == 'E'){
             cood[1]++;
-        }else if(ch == 'W'){
+        }else if(block.ch == 'W'){
             cood[1]--;
+        }else if(block.ch == '*'){
+            cood[0] = cood[0] + block.cood[0];
+            cood[1] = cood[1] + block.cood[1];
         }
     }
 
-    private static int[] solution(String str){
-        int []ans = new int[2];
-        Stack<Integer> st = new Stack<>();
+    private static long[] solution(String str){
+        long []ans = new long[2];
+        Stack<Block> st = new Stack<>();
         Stack<Integer> multipliers = new Stack<>();
         int i=0;
         while(i<str.length()){
@@ -39,23 +58,28 @@ public class RoboPathDecoding {
                 multipliers.push(Integer.parseInt(str.substring(i, r)));
                 i = r;
             }else if(ch == ')'){
-                int []co = new int[2];
-                while(str.charAt(st.peek()) != '('){
-                    calcRC(str.charAt(st.pop()), co);
+                long []co = new long[2];
+                while(st.peek().ch != '('){
+                    calcRC(st.pop(), co);
                 }
                 st.pop(); // take out '('
                 int multiplier = multipliers.pop();
-                ans[0] += co[0]*multiplier;
-                ans[1] += co[1]*multiplier;
+                co[0] = co[0]*multiplier;
+                co[1] = co[1]*multiplier;
+                st.push(new Block(co, '*'));
                 i++;
+
             }else{// if(ch == '(' || ch is 'char'){
-                st.push(i++);
+                st.push(new Block(str.charAt(i++)));
             }
         }
         while(!st.isEmpty()){
-            calcRC(str.charAt(st.pop()), ans);
+            Block block = st.pop();
+            calcRC(block, ans);
         }
-        return new int[]{getEffectiveCood(ans[0]), getEffectiveCood(ans[1])};
+        ans[0] = getEffectiveCood(ans[0]);
+        ans[1] = getEffectiveCood(ans[1]);
+        return ans;
     }
 
     public static void main(String[] args) {
@@ -64,7 +88,7 @@ public class RoboPathDecoding {
         int t = scanner.nextInt();
         int k = t;
         while(t-->0){
-            int []ans = solution(scanner.next());
+            long []ans = solution(scanner.next());
             System.out.println("Case #"+(k-t)+": "+ans[1]+" "+ans[0]);
 //            System.out.println("Case #"+(k-t)+": "+ans);
         }
