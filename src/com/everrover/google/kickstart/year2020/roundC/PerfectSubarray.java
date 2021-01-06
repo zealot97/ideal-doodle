@@ -5,13 +5,13 @@ import java.util.Scanner;
 public class PerfectSubarray {
     private static long solution(int []arr, int left, int right){
         long[] map = new long[right+left+1];
-        map[0]++;
+        map[left]++;
         int prefixSum = 0;
         long res[] = new long[arr.length];
         for(int j=0; j<arr.length; j++){
             prefixSum += arr[j];
             int index = prefixSum+left;
-            for(int i=0; (index-i*i)>=0; i++){
+            for(int i=0; index-i*i>=0 && i*i<=right; i++){
                 res[j] += map[index-i*i];
             }
             map[index]++;
