@@ -1,7 +1,5 @@
 package com.everrover.leetcode;
 
-import java.util.Arrays;
-
 public class MaximumXOROfTwoElementsFromArray {
     public static class Trie{
         public static class TrieNode{
